@@ -50,7 +50,7 @@ public class ApplicationContext {
         String basePackage = XMLParser.getBasePackage(xml);
         String[] packages = basePackage.split(",");
         for (String pack : packages) {
-            executeScanPackage(pack);
+            prepareBean(pack);
         }
 
         // 注册bean
@@ -65,13 +65,13 @@ public class ApplicationContext {
      *
      * @param pack 路径
      */
-    private void executeScanPackage(String pack) {
+    private void prepareBean(String pack) {
         URL url = this.getClass().getClassLoader().getResource("/" + pack.replaceAll("\\.", "/"));
         String path = url.getFile();
         File dir = new File(path);
         for (File file : dir.listFiles()) {
             if (file.isDirectory()) {
-                executeScanPackage(pack + "." + file.getName());
+                prepareBean(pack + "." + file.getName());
             } else {
                 String className = pack + "." + file.getName().replaceAll(".class", "");
                 classes.add(className);
