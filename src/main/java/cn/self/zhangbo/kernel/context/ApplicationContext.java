@@ -53,11 +53,11 @@ public class ApplicationContext {
             executeScanPackage(pack);
         }
 
-        // 实例化
-        executeInstance();
+        // 注册bean
+        registerBean();
 
-        // 自动注入
-        executeAutowired();
+        // 自动注入bean
+        autowireBean();
     }
 
     /**
@@ -82,7 +82,7 @@ public class ApplicationContext {
     /**
      * 实例化
      */
-    private void executeInstance() {
+    private void registerBean() {
         for (String className : classes) {
             try {
                 Class<?> clz = Class.forName(className);
@@ -122,7 +122,7 @@ public class ApplicationContext {
     /**
      * 自动注入
      */
-    private void executeAutowired() {
+    private void autowireBean() {
         for (Map.Entry<String, Object> entry : singletonObjects.entrySet()) {
             Object bean = entry.getValue();
             Field[] fields = bean.getClass().getDeclaredFields();
