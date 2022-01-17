@@ -30,7 +30,7 @@ public class ApplicationContext {
     private final List<String> classes = new ArrayList<>();
 
     /**
-     * bean容器
+     * 完整bean
      */
     public final Map<String, Object> singletonObjects = new ConcurrentHashMap<>();
 
