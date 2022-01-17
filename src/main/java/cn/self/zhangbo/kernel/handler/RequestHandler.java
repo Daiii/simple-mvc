@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 /**
  * 映射关系
  */
-public class SimpleHandler {
+public class RequestHandler {
 
     /**
      * 请求路径
@@ -22,10 +22,10 @@ public class SimpleHandler {
      */
     private Method method;
 
-    public SimpleHandler() {
+    public RequestHandler() {
     }
 
-    public SimpleHandler(String url, Object controller, Method method) {
+    public RequestHandler(String url, Object controller, Method method) {
         this.url = url;
         this.controller = controller;
         this.method = method;
@@ -33,7 +33,7 @@ public class SimpleHandler {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("SimpleHandler{");
+        final StringBuilder sb = new StringBuilder("RequestHandler{");
         sb.append("url='").append(url).append('\'');
         sb.append(", controller=").append(controller);
         sb.append(", method=").append(method);

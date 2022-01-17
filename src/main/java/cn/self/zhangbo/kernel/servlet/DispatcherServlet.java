@@ -5,7 +5,7 @@ import cn.self.zhangbo.kernel.annotation.RequestMapping;
 import cn.self.zhangbo.kernel.annotation.RequestParam;
 import cn.self.zhangbo.kernel.annotation.ResponseBody;
 import cn.self.zhangbo.kernel.context.ApplicationContext;
-import cn.self.zhangbo.kernel.handler.SimpleHandler;
+import cn.self.zhangbo.kernel.handler.RequestHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.servlet.ServletException;
@@ -33,7 +33,7 @@ public class DispatcherServlet extends HttpServlet {
     /**
      * 请求关系映射
      */
-    public List<SimpleHandler> handlerMapping = new ArrayList<>();
+    public List<RequestHandler> handlerMapping = new ArrayList<>();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -73,7 +73,7 @@ public class DispatcherServlet extends HttpServlet {
                     if (method.isAnnotationPresent(RequestMapping.class)) {
                         RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
                         String url = requestMapping.value();
-                        SimpleHandler handler = new SimpleHandler(url, entry.getValue(), method);
+                        RequestHandler handler = new RequestHandler(url, entry.getValue(), method);
                         handlerMapping.add(handler);
                     }
                 }
@@ -88,7 +88,7 @@ public class DispatcherServlet extends HttpServlet {
      * @param resp Response
      */
     private void dispatcher(HttpServletRequest req, HttpServletResponse resp) {
-        SimpleHandler handler = getHandler(req);
+        RequestHandler handler = getHandler(req);
         try {
             if (handler == null) {
                 resp.getWriter().println("<h1>404 Not Found</h1>");
@@ -106,9 +106,9 @@ public class DispatcherServlet extends HttpServlet {
      * @param req Request
      * @return Handler
      */
-    private SimpleHandler getHandler(HttpServletRequest req) {
+    private RequestHandler getHandler(HttpServletRequest req) {
         String uri = req.getRequestURI();
-        for (SimpleHandler handler : handlerMapping) {
+        for (RequestHandler handler : handlerMapping) {
             if (handler.getUrl().equals(uri)) {
                 return handler;
             }
@@ -126,7 +126,7 @@ public class DispatcherServlet extends HttpServlet {
      * @throws InvocationTargetException 异常
      * @throws IllegalAccessException    异常
      */
-    private void invoke(SimpleHandler handler, HttpServletRequest req, HttpServletResponse resp)
+    private void invoke(RequestHandler handler, HttpServletRequest req, HttpServletResponse resp)
             throws IOException, InvocationTargetException, IllegalAccessException, ServletException {
         Object result = null;
 
