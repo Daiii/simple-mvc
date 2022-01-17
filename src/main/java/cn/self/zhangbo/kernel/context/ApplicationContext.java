@@ -32,7 +32,12 @@ public class ApplicationContext {
     /**
      * bean容器
      */
-    public Map<String, Object> objectMap = new ConcurrentHashMap<>();
+    private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>();
+
+    /**
+     * 早期bean
+     */
+    private final Map<String, Object> earlySingletonObjects = new ConcurrentHashMap<>();
 
     /**
      * 初始化
@@ -87,7 +92,7 @@ public class ApplicationContext {
                     if (value.equals("")) {
                         beanName = clz.getSimpleName().substring(0, 1).toLowerCase() + clz.getSimpleName().substring(1);
                     }
-                    objectMap.put(beanName, clz.newInstance());
+                    singletonObjects.put(beanName, clz.newInstance());
                 }
 
                 if (clz.isAnnotationPresent(Component.class)) {
@@ -96,7 +101,7 @@ public class ApplicationContext {
                     if (value.equals("")) {
                         beanName = clz.getSimpleName().substring(0, 1).toLowerCase() + clz.getSimpleName().substring(1);
                     }
-                    objectMap.put(beanName, clz.newInstance());
+                    singletonObjects.put(beanName, clz.newInstance());
                 }
 
                 if (clz.isAnnotationPresent(Service.class)) {
@@ -106,7 +111,7 @@ public class ApplicationContext {
                         beanName = clz.getInterfaces()[0].getSimpleName().substring(0, 1).toLowerCase()
                                 + clz.getInterfaces()[0].getSimpleName().substring(1);
                     }
-                    objectMap.put(beanName, clz.newInstance());
+                    singletonObjects.put(beanName, clz.newInstance());
                 }
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
                 e.printStackTrace();
@@ -118,7 +123,7 @@ public class ApplicationContext {
      * 自动注入
      */
     private void executeAutowired() {
-        for (Map.Entry<String, Object> entry : objectMap.entrySet()) {
+        for (Map.Entry<String, Object> entry : singletonObjects.entrySet()) {
             Object bean = entry.getValue();
             Field[] fields = bean.getClass().getDeclaredFields();
             for (Field field : fields) {
@@ -130,7 +135,7 @@ public class ApplicationContext {
                     }
                     field.setAccessible(Boolean.TRUE);
                     try {
-                        field.set(bean, objectMap.get(beanName));
+                        field.set(bean, singletonObjects.get(beanName));
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
                     }
