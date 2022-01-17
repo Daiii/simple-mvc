@@ -65,7 +65,7 @@ public class DispatcherServlet extends HttpServlet {
      * 初始化映射
      */
     private void initHandlerMapping() {
-        for (Map.Entry<String, Object> entry : applicationContext.objectMap.entrySet()) {
+        for (Map.Entry<String, Object> entry : applicationContext.singletonObjects.entrySet()) {
             Class clz = entry.getValue().getClass();
             if (clz.isAnnotationPresent(Controller.class)) {
                 Method[] declaredMethods = clz.getDeclaredMethods();

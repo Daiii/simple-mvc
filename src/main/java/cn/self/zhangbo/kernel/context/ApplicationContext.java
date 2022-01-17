@@ -32,7 +32,7 @@ public class ApplicationContext {
     /**
      * bean容器
      */
-    private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>();
+    public final Map<String, Object> singletonObjects = new ConcurrentHashMap<>();
 
     /**
      * 早期bean
