@@ -12,7 +12,17 @@ public class IndexController {
 
     @RequestMapping("/index")
     public String index() {
-        return "success";
+        return "redirect:success";
+    }
+
+    @RequestMapping("/login")
+    public String login() {
+        return "forward:index";
+    }
+
+    @RequestMapping("/default")
+    public String normal() {
+        return "default";
     }
 
     @RequestMapping("/sayHello")

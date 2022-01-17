@@ -30,7 +30,10 @@ public class DispatcherServlet extends HttpServlet {
      */
     private ApplicationContext applicationContext;
 
-    public List<SimpleHandler> handlers = new ArrayList<>();
+    /**
+     * 请求关系映射
+     */
+    public List<SimpleHandler> handlerMapping = new ArrayList<>();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -71,7 +74,7 @@ public class DispatcherServlet extends HttpServlet {
                         RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
                         String url = requestMapping.value();
                         SimpleHandler handler = new SimpleHandler(url, entry.getValue(), method);
-                        handlers.add(handler);
+                        handlerMapping.add(handler);
                     }
                 }
             }
@@ -90,12 +93,7 @@ public class DispatcherServlet extends HttpServlet {
             if (handler == null) {
                 resp.getWriter().println("<h1>404 Not Found</h1>");
             } else {
-                int parameterCount = handler.getMethod().getParameterCount();
-                if (parameterCount == 0) {
-                    this.invoke(handler, req, resp);
-                } else {
-                    this.invoke(handler, null, req, resp);
-                }
+                invoke(handler, req, resp);
             }
         } catch (IllegalAccessException | InvocationTargetException | IOException | ServletException e) {
             e.printStackTrace();
@@ -110,7 +108,7 @@ public class DispatcherServlet extends HttpServlet {
      */
     private SimpleHandler getHandler(HttpServletRequest req) {
         String uri = req.getRequestURI();
-        for (SimpleHandler handler : handlers) {
+        for (SimpleHandler handler : handlerMapping) {
             if (handler.getUrl().equals(uri)) {
                 return handler;
             }
@@ -118,27 +116,21 @@ public class DispatcherServlet extends HttpServlet {
         return null;
     }
 
+    /**
+     * 处理请求
+     *
+     * @param handler 请求信息
+     * @param req     request
+     * @param resp    response
+     * @throws IOException               异常
+     * @throws InvocationTargetException 异常
+     * @throws IllegalAccessException    异常
+     */
     private void invoke(SimpleHandler handler, HttpServletRequest req, HttpServletResponse resp)
-            throws InvocationTargetException, IllegalAccessException, IOException, ServletException {
-        Object result = handler.getMethod().invoke(handler.getController());
-        if (handler.getMethod().isAnnotationPresent(ResponseBody.class)) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            String json = objectMapper.writeValueAsString(result);
-            result = json;
-            resp.setContentType("text/html;charset=utf-8");
-            PrintWriter writer = resp.getWriter();
-            writer.println(result);
-            writer.flush();
-            writer.close();
-        } else if (result instanceof String) {
-            resp.sendRedirect(result + ".jsp");
-        }
-        System.out.printf("dispatcher --> %s result : %s%n", handler.getUrl(), result);
-    }
+            throws IOException, InvocationTargetException, IllegalAccessException, ServletException {
+        Object result = null;
 
-    private void invoke(SimpleHandler handler, Object[] parameters, HttpServletRequest req, HttpServletResponse resp)
-            throws InvocationTargetException, IllegalAccessException, IOException, ServletException {
-        List<Object> parameterNames = new ArrayList<>();
+        // 获取方法参数
         Class<?>[] parameterTypes = handler.getMethod().getParameterTypes();
         Annotation[][] parameterAnnotations = handler.getMethod().getParameterAnnotations();
         Object[] paraValues = new Object[parameterTypes.length];
@@ -151,7 +143,12 @@ public class DispatcherServlet extends HttpServlet {
             }
         }
 
-        Object result = handler.getMethod().invoke(handler.getController(), paraValues);
+        if (paraValues != null && paraValues.length > 0) {
+            result = handler.getMethod().invoke(handler.getController(), paraValues);
+        } else {
+            result = handler.getMethod().invoke(handler.getController());
+        }
+
         if (handler.getMethod().isAnnotationPresent(ResponseBody.class)) {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(result);
@@ -161,9 +158,19 @@ public class DispatcherServlet extends HttpServlet {
             writer.println(result);
             writer.flush();
             writer.close();
-        } else if (result instanceof String) {
-            resp.sendRedirect(result + ".jsp");
+        } else {
+            String[] results = result.toString().split(":");
+            if (results[0].equals("redirect")) {
+                resp.sendRedirect(results[1] + ".jsp");
+            } else if (results[0].equals("forward")) {
+                req.getRequestDispatcher(results[1]).forward(req, resp);
+            } else {
+                resp.setContentType("text/html;charset=utf-8");
+                PrintWriter writer = resp.getWriter();
+                writer.println(result);
+                writer.flush();
+                writer.close();
+            }
         }
-        System.out.printf("dispatcher --> %s result : %s%n", handler.getUrl(), result);
     }
 }

@@ -27,7 +27,7 @@ public class ApplicationContext {
     /**
      * 权限类集合
      */
-    private List<String> classes = new ArrayList<>();
+    private final List<String> classes = new ArrayList<>();
 
     /**
      * bean容器
