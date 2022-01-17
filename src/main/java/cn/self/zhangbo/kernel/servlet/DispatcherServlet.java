@@ -97,7 +97,7 @@ public class DispatcherServlet extends HttpServlet {
                     this.invoke(handler, null, req, resp);
                 }
             }
-        } catch (IllegalAccessException | InvocationTargetException | IOException e) {
+        } catch (IllegalAccessException | InvocationTargetException | IOException | ServletException e) {
             e.printStackTrace();
         }
     }
@@ -119,7 +119,7 @@ public class DispatcherServlet extends HttpServlet {
     }
 
     private void invoke(SimpleHandler handler, HttpServletRequest req, HttpServletResponse resp)
-            throws InvocationTargetException, IllegalAccessException, IOException {
+            throws InvocationTargetException, IllegalAccessException, IOException, ServletException {
         Object result = handler.getMethod().invoke(handler.getController());
         if (handler.getMethod().isAnnotationPresent(ResponseBody.class)) {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -130,12 +130,14 @@ public class DispatcherServlet extends HttpServlet {
             writer.println(result);
             writer.flush();
             writer.close();
+        } else if (result instanceof String) {
+            resp.sendRedirect(result + ".jsp");
         }
         System.out.printf("dispatcher --> %s result : %s%n", handler.getUrl(), result);
     }
 
     private void invoke(SimpleHandler handler, Object[] parameters, HttpServletRequest req, HttpServletResponse resp)
-            throws InvocationTargetException, IllegalAccessException, IOException {
+            throws InvocationTargetException, IllegalAccessException, IOException, ServletException {
         List<Object> parameterNames = new ArrayList<>();
         Class<?>[] parameterTypes = handler.getMethod().getParameterTypes();
         Annotation[][] parameterAnnotations = handler.getMethod().getParameterAnnotations();
@@ -159,6 +161,8 @@ public class DispatcherServlet extends HttpServlet {
             writer.println(result);
             writer.flush();
             writer.close();
+        } else if (result instanceof String) {
+            resp.sendRedirect(result + ".jsp");
         }
         System.out.printf("dispatcher --> %s result : %s%n", handler.getUrl(), result);
     }
