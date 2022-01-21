@@ -7,7 +7,8 @@ import java.lang.annotation.Target;
 
 @Target(value = ElementType.METHOD)
 @Retention(value = RetentionPolicy.RUNTIME)
-public @interface RequestMapping {
-
+public @interface RequestMapping
+{
+    
     String value() default "";
 }

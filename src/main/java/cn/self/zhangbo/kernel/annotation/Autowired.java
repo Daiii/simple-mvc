@@ -7,7 +7,8 @@ import java.lang.annotation.Target;
 
 @Target(value = ElementType.FIELD)
 @Retention(value = RetentionPolicy.RUNTIME)
-public @interface Autowired {
-
+public @interface Autowired
+{
+    
     String value() default "";
 }

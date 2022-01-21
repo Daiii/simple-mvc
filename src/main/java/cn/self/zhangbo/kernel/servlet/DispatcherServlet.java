@@ -4,8 +4,10 @@ import cn.self.zhangbo.kernel.annotation.Controller;
 import cn.self.zhangbo.kernel.annotation.RequestMapping;
 import cn.self.zhangbo.kernel.annotation.RequestParam;
 import cn.self.zhangbo.kernel.annotation.ResponseBody;
+import cn.self.zhangbo.kernel.common.Constants;
 import cn.self.zhangbo.kernel.context.ApplicationContext;
 import cn.self.zhangbo.kernel.handler.RequestHandler;
+import cn.self.zhangbo.kernel.util.StringUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.servlet.ServletException;
@@ -21,56 +23,68 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class DispatcherServlet extends HttpServlet {
-
+public class DispatcherServlet extends HttpServlet
+{
+    
     private static final String CONTEXT_CONFIG_LOCATION = "contextConfigLocation";
-
+    
     /**
      * 上下文
      */
     private ApplicationContext applicationContext;
-
+    
     /**
      * 请求关系映射
      */
     public List<RequestHandler> handlerMapping = new ArrayList<>();
-
+    
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+        throws ServletException, IOException
+    {
         doPost(req, resp);
     }
-
+    
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+        throws ServletException, IOException
+    {
         // 请求分发
         dispatcher(req, resp);
     }
-
+    
     @Override
-    public void init() throws ServletException {
+    public void init()
+        throws ServletException
+    {
         // 加载初始化参数
         String contextConfigLocation = this.getServletConfig().getInitParameter(CONTEXT_CONFIG_LOCATION);
-
+        
         // 创建IoC容器
         this.applicationContext = new ApplicationContext(contextConfigLocation);
-
+        
         // 初始化
         this.applicationContext.onRefresh();
-
+        
         // 初始化映射关系
         this.initHandlerMapping();
     }
-
+    
     /**
      * 初始化映射
      */
-    private void initHandlerMapping() {
-        for (Map.Entry<String, Object> entry : applicationContext.singletonObjects.entrySet()) {
+    private void initHandlerMapping()
+    {
+        for (Map.Entry<String, Object> entry : applicationContext.singletonObjects.entrySet())
+        {
             Class clz = entry.getValue().getClass();
-            if (clz.isAnnotationPresent(Controller.class)) {
+            if (clz.isAnnotationPresent(Controller.class))
+            {
                 Method[] declaredMethods = clz.getDeclaredMethods();
-                for (Method method : declaredMethods) {
-                    if (method.isAnnotationPresent(RequestMapping.class)) {
+                for (Method method : declaredMethods)
+                {
+                    if (method.isAnnotationPresent(RequestMapping.class))
+                    {
                         RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
                         String url = requestMapping.value();
                         RequestHandler handler = new RequestHandler(url, entry.getValue(), method);
@@ -80,76 +94,94 @@ public class DispatcherServlet extends HttpServlet {
             }
         }
     }
-
+    
     /**
      * 分发请求
      *
-     * @param req  Request
+     * @param req Request
      * @param resp Response
      */
-    private void dispatcher(HttpServletRequest req, HttpServletResponse resp) {
+    private void dispatcher(HttpServletRequest req, HttpServletResponse resp)
+    {
         RequestHandler handler = getHandler(req);
-        try {
-            if (handler == null) {
+        try
+        {
+            if (handler == null)
+            {
                 resp.getWriter().println("<h1>404 Not Found</h1>");
-            } else {
+            }
+            else
+            {
                 invoke(handler, req, resp);
             }
-        } catch (IllegalAccessException | InvocationTargetException | IOException | ServletException e) {
+        }
+        catch (IllegalAccessException | InvocationTargetException | IOException | ServletException e)
+        {
             e.printStackTrace();
         }
     }
-
+    
     /**
      * 根据请求获取handler
      *
      * @param req Request
      * @return Handler
      */
-    private RequestHandler getHandler(HttpServletRequest req) {
+    private RequestHandler getHandler(HttpServletRequest req)
+    {
         String uri = req.getRequestURI();
-        for (RequestHandler handler : handlerMapping) {
-            if (handler.getUrl().equals(uri)) {
+        for (RequestHandler handler : handlerMapping)
+        {
+            if (StringUtil.equals(handler.getUrl(), uri))
+            {
                 return handler;
             }
         }
         return null;
     }
-
+    
     /**
      * 处理请求
      *
      * @param handler 请求信息
-     * @param req     request
-     * @param resp    response
-     * @throws IOException               异常
+     * @param req request
+     * @param resp response
+     * @throws IOException 异常
      * @throws InvocationTargetException 异常
-     * @throws IllegalAccessException    异常
+     * @throws IllegalAccessException 异常
      */
     private void invoke(RequestHandler handler, HttpServletRequest req, HttpServletResponse resp)
-            throws IOException, InvocationTargetException, IllegalAccessException, ServletException {
+        throws IOException, InvocationTargetException, IllegalAccessException, ServletException
+    {
         Object result = null;
-
+        
         // 获取方法参数
         Class<?>[] parameterTypes = handler.getMethod().getParameterTypes();
         Annotation[][] parameterAnnotations = handler.getMethod().getParameterAnnotations();
         Object[] paraValues = new Object[parameterTypes.length];
-        for (int i = 0; i < parameterTypes.length; i++) {
-            for (Annotation annotation : parameterAnnotations[i]) {
-                if (annotation instanceof RequestParam) {
-                    String paraName = ((RequestParam) annotation).value();
+        for (int i = 0; i < parameterTypes.length; i++)
+        {
+            for (Annotation annotation : parameterAnnotations[i])
+            {
+                if (annotation instanceof RequestParam)
+                {
+                    String paraName = ((RequestParam)annotation).value();
                     paraValues[i] = req.getParameter(paraName);
                 }
             }
         }
-
-        if (paraValues != null && paraValues.length > 0) {
+        
+        if (paraValues != null && paraValues.length > 0)
+        {
             result = handler.getMethod().invoke(handler.getController(), paraValues);
-        } else {
+        }
+        else
+        {
             result = handler.getMethod().invoke(handler.getController());
         }
-
-        if (handler.getMethod().isAnnotationPresent(ResponseBody.class)) {
+        
+        if (handler.getMethod().isAnnotationPresent(ResponseBody.class))
+        {
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(result);
             result = json;
@@ -158,13 +190,20 @@ public class DispatcherServlet extends HttpServlet {
             writer.println(result);
             writer.flush();
             writer.close();
-        } else {
+        }
+        else
+        {
             String[] results = result.toString().split(":");
-            if (results[0].equals("redirect")) {
-                resp.sendRedirect(results[1] + ".jsp");
-            } else if (results[0].equals("forward")) {
+            if (StringUtil.equals(results[0], Constants.REDIRECT))
+            {
+                resp.sendRedirect(results[1] + Constants.JSP_SUFFIX);
+            }
+            else if (StringUtil.equals(results[0], Constants.FORWARD))
+            {
                 req.getRequestDispatcher(results[1]).forward(req, resp);
-            } else {
+            }
+            else
+            {
                 resp.setContentType("text/html;charset=utf-8");
                 PrintWriter writer = resp.getWriter();
                 writer.println(result);

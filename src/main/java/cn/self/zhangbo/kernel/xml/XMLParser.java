@@ -11,16 +11,19 @@ import java.io.InputStream;
 /**
  * XML解析器
  */
-public class XMLParser {
-
+public class XMLParser
+{
+    
     /**
      * 读xml获取base-package
      *
      * @param xml XML
      * @return base-package路径
      */
-    public static String getBasePackage(String xml) {
-        try {
+    public static String getBasePackage(String xml)
+    {
+        try
+        {
             SAXReader saxReader = new SAXReader();
             InputStream inputStream = XMLParser.class.getClassLoader().getResourceAsStream(xml);
             Document document = saxReader.read(inputStream);
@@ -28,7 +31,9 @@ public class XMLParser {
             Element component = root.element("component-scan");
             Attribute attribute = component.attribute("base-package");
             return attribute.getText();
-        } catch (DocumentException e) {
+        }
+        catch (DocumentException e)
+        {
             e.printStackTrace();
         }
         return null;
