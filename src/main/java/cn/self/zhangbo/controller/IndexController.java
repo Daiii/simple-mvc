@@ -18,7 +18,7 @@ public class IndexController
     @RequestMapping("/index")
     public String index()
     {
-        return "redirect:success";
+        return "redirect:/success";
     }
     
     @RequestMapping("/login")

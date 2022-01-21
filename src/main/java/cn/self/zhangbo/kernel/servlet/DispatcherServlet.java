@@ -19,6 +19,7 @@ import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -77,9 +78,10 @@ public class DispatcherServlet extends HttpServlet
     {
         for (Map.Entry<String, Object> entry : applicationContext.singletonObjects.entrySet())
         {
-            Class clz = entry.getValue().getClass();
+            Class<?> clz = entry.getValue().getClass();
             if (clz.isAnnotationPresent(Controller.class))
             {
+                String parentUri = clz.getAnnotation(Controller.class).value();
                 Method[] declaredMethods = clz.getDeclaredMethods();
                 for (Method method : declaredMethods)
                 {
@@ -87,7 +89,15 @@ public class DispatcherServlet extends HttpServlet
                     {
                         RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
                         String url = requestMapping.value();
-                        RequestHandler handler = new RequestHandler(url, entry.getValue(), method);
+                        RequestHandler handler = null;
+                        if (StringUtil.isEmpty(parentUri))
+                        {
+                            handler = new RequestHandler(url, entry.getValue(), method);
+                        }
+                        else
+                        {
+                            handler = new RequestHandler(parentUri + url, entry.getValue(), method);
+                        }
                         handlerMapping.add(handler);
                     }
                 }

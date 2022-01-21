@@ -100,12 +100,8 @@ public class ApplicationContext
                 Class<?> clz = Class.forName(className);
                 if (clz.isAnnotationPresent(Controller.class))
                 {
-                    String value = clz.getAnnotation(Controller.class).value();
-                    String beanName = value;
-                    if (StringUtil.isEmpty(value))
-                    {
-                        beanName = clz.getSimpleName().substring(0, 1).toLowerCase() + clz.getSimpleName().substring(1);
-                    }
+                    String beanName =
+                        clz.getSimpleName().substring(0, 1).toLowerCase() + clz.getSimpleName().substring(1);
                     singletonObjects.put(beanName, clz.newInstance());
                 }
                 

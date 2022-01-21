@@ -19,7 +19,7 @@ public interface Constants
     /**
      * .jsp
      */
-    static String JSP_SUFFIX = "jps_suffix";
+    static String JSP_SUFFIX = ".jsp";
     
     /**
      * 成功
