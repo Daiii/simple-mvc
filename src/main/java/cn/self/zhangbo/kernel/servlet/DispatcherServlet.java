@@ -1,5 +1,22 @@
 package cn.self.zhangbo.kernel.servlet;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import cn.self.zhangbo.kernel.annotation.Controller;
 import cn.self.zhangbo.kernel.annotation.RequestMapping;
 import cn.self.zhangbo.kernel.annotation.RequestParam;
@@ -8,21 +25,6 @@ import cn.self.zhangbo.kernel.common.Constants;
 import cn.self.zhangbo.kernel.context.ApplicationContext;
 import cn.self.zhangbo.kernel.handler.RequestHandler;
 import cn.self.zhangbo.kernel.util.StringUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class DispatcherServlet extends HttpServlet
 {
@@ -81,7 +83,7 @@ public class DispatcherServlet extends HttpServlet
             Class<?> clz = entry.getValue().getClass();
             if (clz.isAnnotationPresent(Controller.class))
             {
-                String parentUri = clz.getAnnotation(Controller.class).value();
+                String parentUri = Optional.ofNullable(clz.getAnnotation(Controller.class).value()).orElse("");
                 Method[] declaredMethods = clz.getDeclaredMethods();
                 for (Method method : declaredMethods)
                 {
@@ -90,14 +92,7 @@ public class DispatcherServlet extends HttpServlet
                         RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
                         String url = requestMapping.value();
                         RequestHandler handler = null;
-                        if (StringUtil.isEmpty(parentUri))
-                        {
-                            handler = new RequestHandler(url, entry.getValue(), method);
-                        }
-                        else
-                        {
-                            handler = new RequestHandler(parentUri + url, entry.getValue(), method);
-                        }
+                        handler = new RequestHandler(parentUri + url, entry.getValue(), method);
                         handlerMapping.add(handler);
                     }
                 }

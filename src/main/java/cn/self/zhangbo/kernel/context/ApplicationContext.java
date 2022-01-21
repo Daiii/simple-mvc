@@ -1,12 +1,5 @@
 package cn.self.zhangbo.kernel.context;
 
-import cn.self.zhangbo.kernel.annotation.Autowired;
-import cn.self.zhangbo.kernel.annotation.Component;
-import cn.self.zhangbo.kernel.annotation.Controller;
-import cn.self.zhangbo.kernel.annotation.Service;
-import cn.self.zhangbo.kernel.util.StringUtil;
-import cn.self.zhangbo.kernel.xml.XMLParser;
-
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URL;
@@ -14,6 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import cn.self.zhangbo.kernel.annotation.Autowired;
+import cn.self.zhangbo.kernel.annotation.Component;
+import cn.self.zhangbo.kernel.annotation.Controller;
+import cn.self.zhangbo.kernel.annotation.Service;
+import cn.self.zhangbo.kernel.util.StringUtil;
+import cn.self.zhangbo.kernel.xml.XMLParser;
 
 /**
  * IoC容器
