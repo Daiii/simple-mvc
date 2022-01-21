@@ -126,6 +126,7 @@ public class ApplicationContext
                     String beanName = value;
                     if (StringUtil.isEmpty(value))
                     {
+                        // 接口名
                         beanName = clz.getInterfaces()[0].getSimpleName().substring(0, 1).toLowerCase()
                             + clz.getInterfaces()[0].getSimpleName().substring(1);
                     }
@@ -156,7 +157,17 @@ public class ApplicationContext
                     String beanName = value;
                     if (StringUtil.isEmpty(value))
                     {
-                        beanName = field.getName().substring(0, 1).toLowerCase() + field.getName().substring(1);
+                        if (field.getType().isInterface())
+                        {
+                            beanName = field.getName().substring(0, 1).toLowerCase() + field.getName().substring(1);
+                        }
+                        else
+                        {
+                            // 如果是实现类则取接口名
+                            beanName =
+                                bean.getClass().getInterfaces().getClass().getSimpleName().substring(0, 1).toLowerCase()
+                                    + field.getName().substring(1);
+                        }
                     }
                     field.setAccessible(Boolean.TRUE);
                     try

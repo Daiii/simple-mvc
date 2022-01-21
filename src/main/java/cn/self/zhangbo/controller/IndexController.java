@@ -3,6 +3,7 @@ package cn.self.zhangbo.controller;
 import cn.self.zhangbo.kernel.annotation.*;
 import cn.self.zhangbo.pojo.User;
 import cn.self.zhangbo.service.IndexService;
+import cn.self.zhangbo.service.impl.IndexServiceImpl;
 
 @Controller
 public class IndexController
@@ -10,6 +11,9 @@ public class IndexController
     
     @Autowired
     IndexService indexService;
+    
+    @Autowired
+    IndexServiceImpl indexServiceImpl;
     
     @RequestMapping("/index")
     public String index()
