@@ -13,3 +13,6 @@ simple mvc
 * kernel.context 上下文
 * kernel.handler 映射
 * kernel.servlet 分发
+* kernel.xml XML解析
+* kernel.util 工具包
+* kernel.common 常量
