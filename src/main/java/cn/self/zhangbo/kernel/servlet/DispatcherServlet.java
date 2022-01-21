@@ -193,8 +193,7 @@ public class DispatcherServlet extends HttpServlet
         if (handler.getMethod().isAnnotationPresent(ResponseBody.class))
         {
             ObjectMapper objectMapper = new ObjectMapper();
-            String json = objectMapper.writeValueAsString(result);
-            result = json;
+            result = objectMapper.writeValueAsString(result);
             resp.setContentType("text/html;charset=utf-8");
             PrintWriter writer = resp.getWriter();
             writer.println(result);
