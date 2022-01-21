@@ -83,7 +83,7 @@ public class DispatcherServlet extends HttpServlet
             Class<?> clz = entry.getValue().getClass();
             if (clz.isAnnotationPresent(Controller.class))
             {
-                String parentUri = Optional.ofNullable(clz.getAnnotation(Controller.class).value()).orElse("");
+                String present = Optional.ofNullable(clz.getAnnotation(Controller.class).value()).orElse("");
                 Method[] declaredMethods = clz.getDeclaredMethods();
                 for (Method method : declaredMethods)
                 {
@@ -92,7 +92,7 @@ public class DispatcherServlet extends HttpServlet
                         RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
                         String url = requestMapping.value();
                         RequestHandler handler = null;
-                        handler = new RequestHandler(parentUri + url, entry.getValue(), method);
+                        handler = new RequestHandler(present + url, entry.getValue(), method);
                         handlerMapping.add(handler);
                     }
                 }
