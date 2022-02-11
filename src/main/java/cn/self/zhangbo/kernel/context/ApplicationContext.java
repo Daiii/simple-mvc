@@ -44,7 +44,7 @@ public class ApplicationContext
     /**
      * 初始化
      */
-    public void onRefresh()
+    public void refresh()
     {
         // 解析XML读取backPackage
         String xml = this.contextConfigLocation.split(":")[1];

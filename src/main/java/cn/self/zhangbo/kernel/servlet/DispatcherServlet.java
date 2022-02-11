@@ -67,7 +67,7 @@ public class DispatcherServlet extends HttpServlet
         this.applicationContext = new ApplicationContext(contextConfigLocation);
         
         // 初始化
-        this.applicationContext.onRefresh();
+        this.applicationContext.refresh();
         
         // 初始化映射关系
         this.initHandlerMapping();
