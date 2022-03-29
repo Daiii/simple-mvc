@@ -185,15 +185,13 @@ public class DispatcherServlet extends HttpServlet
             result = handler.getMethod().invoke(handler.getController());
         }
         
+        PrintWriter printWriter = resp.getWriter();
         if (handler.getMethod().isAnnotationPresent(ResponseBody.class))
         {
             ObjectMapper objectMapper = new ObjectMapper();
             result = objectMapper.writeValueAsString(result);
             resp.setContentType("text/html;charset=utf-8");
-            PrintWriter writer = resp.getWriter();
-            writer.println(result);
-            writer.flush();
-            writer.close();
+            printWriter.println(result);
         }
         else
         {
@@ -209,11 +207,10 @@ public class DispatcherServlet extends HttpServlet
             else
             {
                 resp.setContentType("text/html;charset=utf-8");
-                PrintWriter writer = resp.getWriter();
-                writer.println(result);
-                writer.flush();
-                writer.close();
+                printWriter.println(result);
             }
         }
+        printWriter.flush();
+        printWriter.close();
     }
 }
