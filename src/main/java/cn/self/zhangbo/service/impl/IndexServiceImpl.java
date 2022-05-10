@@ -4,12 +4,10 @@ import cn.self.zhangbo.kernel.annotation.Service;
 import cn.self.zhangbo.service.IndexService;
 
 @Service
-public class IndexServiceImpl implements IndexService
-{
-    
+public class IndexServiceImpl implements IndexService {
+
     @Override
-    public String sayHello(String name)
-    {
+    public String sayHello(String name) {
         return name;
     }
 }
