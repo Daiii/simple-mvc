@@ -36,7 +36,7 @@ public class IndexController {
     @RequestMapping("/sayHello")
     @ResponseBody
     public User sayHello(@RequestParam("name")
-                                 String name) {
+                         String name) {
         return new User(name);
     }
 }

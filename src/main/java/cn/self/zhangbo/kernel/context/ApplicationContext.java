@@ -9,6 +9,7 @@ import cn.self.zhangbo.kernel.xml.XMLParser;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,8 +89,7 @@ public class ApplicationContext {
             try {
                 Class<?> clz = Class.forName(className);
                 if (clz.isAnnotationPresent(Controller.class)) {
-                    String beanName =
-                            clz.getSimpleName().substring(0, 1).toLowerCase() + clz.getSimpleName().substring(1);
+                    String beanName = clz.getSimpleName().substring(0, 1).toLowerCase() + clz.getSimpleName().substring(1);
                     singletonObjects.put(beanName, clz.newInstance());
                 }
 
@@ -107,13 +107,14 @@ public class ApplicationContext {
                     String beanName = value;
                     if (StringUtil.isEmpty(value)) {
                         // 接口名
-                        beanName = clz.getInterfaces()[0].getSimpleName().substring(0, 1).toLowerCase()
-                                + clz.getInterfaces()[0].getSimpleName().substring(1);
+                        beanName = clz.getInterfaces()[0].getSimpleName().substring(0, 1).toLowerCase() + clz.getInterfaces()[0].getSimpleName().substring(1);
                     }
-                    singletonObjects.put(beanName, clz.newInstance());
+                    singletonObjects.put(beanName, clz.getDeclaredConstructor().newInstance());
                 }
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
                 e.printStackTrace();
+            } catch (InvocationTargetException | NoSuchMethodException e) {
+                throw new RuntimeException(e);
             }
         }
     }
@@ -134,9 +135,7 @@ public class ApplicationContext {
                             beanName = field.getName().substring(0, 1).toLowerCase() + field.getName().substring(1);
                         } else {
                             // 如果是实现类则取接口名
-                            beanName =
-                                    bean.getClass().getInterfaces().getClass().getSimpleName().substring(0, 1).toLowerCase()
-                                            + field.getName().substring(1);
+                            beanName = bean.getClass().getInterfaces().getClass().getSimpleName().substring(0, 1).toLowerCase() + field.getName().substring(1);
                         }
                     }
                     field.setAccessible(Boolean.TRUE);
