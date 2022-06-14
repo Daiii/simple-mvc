@@ -8,6 +8,7 @@ import cn.self.zhangbo.kernel.util.StringUtil;
 import cn.self.zhangbo.kernel.xml.XMLParser;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
@@ -88,28 +89,33 @@ public class ApplicationContext {
         for (String className : classes) {
             try {
                 Class<?> clz = Class.forName(className);
-                if (clz.isAnnotationPresent(Controller.class)) {
-                    String beanName = clz.getSimpleName().substring(0, 1).toLowerCase() + clz.getSimpleName().substring(1);
-                    singletonObjects.put(beanName, clz.newInstance());
-                }
-
-                if (clz.isAnnotationPresent(Component.class)) {
-                    String value = clz.getAnnotation(Component.class).value();
-                    String beanName = value;
-                    if (StringUtil.isEmpty(value)) {
-                        beanName = clz.getSimpleName().substring(0, 1).toLowerCase() + clz.getSimpleName().substring(1);
+                Annotation[] annotations = clz.getAnnotations();
+                for (Annotation annotation : annotations) {
+                    if (annotation instanceof Controller) {
+                        if (clz.isAnnotationPresent(Controller.class)) {
+                            String beanName = clz.getSimpleName().substring(0, 1).toLowerCase() + clz.getSimpleName().substring(1);
+                            singletonObjects.put(beanName, clz.getDeclaredConstructor().newInstance());
+                        }
                     }
-                    singletonObjects.put(beanName, clz.newInstance());
-                }
 
-                if (clz.isAnnotationPresent(Service.class)) {
-                    String value = clz.getAnnotation(Service.class).value();
-                    String beanName = value;
-                    if (StringUtil.isEmpty(value)) {
-                        // 接口名
-                        beanName = clz.getInterfaces()[0].getSimpleName().substring(0, 1).toLowerCase() + clz.getInterfaces()[0].getSimpleName().substring(1);
+                    if (annotation instanceof Component) {
+                        String value = clz.getAnnotation(Component.class).value();
+                        String beanName = value;
+                        if (StringUtil.isEmpty(value)) {
+                            beanName = clz.getSimpleName().substring(0, 1).toLowerCase() + clz.getSimpleName().substring(1);
+                        }
+                        singletonObjects.put(beanName, clz.getDeclaredConstructor().newInstance());
                     }
-                    singletonObjects.put(beanName, clz.getDeclaredConstructor().newInstance());
+
+                    if (annotation instanceof Service) {
+                        String value = clz.getAnnotation(Service.class).value();
+                        String beanName = value;
+                        if (StringUtil.isEmpty(value)) {
+                            // 接口名
+                            beanName = clz.getInterfaces()[0].getSimpleName().substring(0, 1).toLowerCase() + clz.getInterfaces()[0].getSimpleName().substring(1);
+                        }
+                        singletonObjects.put(beanName, clz.getDeclaredConstructor().newInstance());
+                    }
                 }
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
                 e.printStackTrace();
