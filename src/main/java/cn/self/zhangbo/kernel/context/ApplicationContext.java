@@ -141,7 +141,7 @@ public class ApplicationContext {
                             beanName = field.getName().substring(0, 1).toLowerCase() + field.getName().substring(1);
                         } else {
                             // 如果是实现类则取接口名
-                            beanName = bean.getClass().getInterfaces().getClass().getSimpleName().substring(0, 1).toLowerCase() + field.getName().substring(1);
+                            beanName = field.getType().getInterfaces()[0].getSimpleName().substring(0, 1).toLowerCase() + field.getType().getInterfaces()[0].getSimpleName().substring(1);
                         }
                     }
                     field.setAccessible(Boolean.TRUE);
