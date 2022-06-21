@@ -139,25 +139,22 @@ public class ApplicationContext {
                     if (StringUtil.isEmpty(value)) {
                         beanName = field.getName().substring(0, 1).toLowerCase() + field.getName().substring(1);
                     }
-                    Object instance = singletonObjects.get(beanName);
-                    if (instance != null) {
-                        try {
+                    try {
+                        Object instance = singletonObjects.get(beanName);
+                        if (instance != null) {
+                            // byName
                             field.set(bean, singletonObjects.get(beanName));
-                        } catch (IllegalAccessException e) {
-                            throw new RuntimeException(e);
-                        }
-                    } else {
-                        for (Map.Entry<String, Object> instanceEntry : singletonObjects.entrySet()) {
-                            Object obj = instanceEntry.getValue();
-                            if (field.getType().isInstance(obj)) {
-                                try {
-                                    field.set(bean, obj);
+                        } else {
+                            for (Map.Entry<String, Object> instanceEntry : singletonObjects.entrySet()) {
+                                if (field.getType().isInstance(instanceEntry.getValue())) {
+                                    // byType
+                                    field.set(bean, instanceEntry.getValue());
                                     break;
-                                } catch (IllegalAccessException e) {
-                                    throw new RuntimeException(e);
                                 }
                             }
                         }
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
                     }
                 }
             }
