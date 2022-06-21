@@ -91,30 +91,29 @@ public class ApplicationContext {
                 Class<?> clz = Class.forName(className);
                 Annotation[] annotations = clz.getAnnotations();
                 for (Annotation annotation : annotations) {
+                    String beanName = null;
                     if (annotation instanceof Controller) {
+                        beanName = clz.getAnnotation(Controller.class).value();
                         if (clz.isAnnotationPresent(Controller.class)) {
-                            String beanName = clz.getSimpleName().substring(0, 1).toLowerCase() + clz.getSimpleName().substring(1);
-                            singletonObjects.put(beanName, clz.getDeclaredConstructor().newInstance());
+                            beanName = clz.getSimpleName().substring(0, 1).toLowerCase() + clz.getSimpleName().substring(1);
                         }
                     }
 
                     if (annotation instanceof Component) {
-                        String value = clz.getAnnotation(Component.class).value();
-                        String beanName = value;
-                        if (StringUtil.isEmpty(value)) {
+                        beanName = clz.getAnnotation(Component.class).value();
+                        if (StringUtil.isEmpty(beanName)) {
                             beanName = clz.getSimpleName().substring(0, 1).toLowerCase() + clz.getSimpleName().substring(1);
                         }
-                        singletonObjects.put(beanName, clz.getDeclaredConstructor().newInstance());
                     }
 
                     if (annotation instanceof Service) {
-                        String value = clz.getAnnotation(Service.class).value();
-                        String beanName = value;
-                        if (StringUtil.isEmpty(value)) {
+                        beanName = clz.getAnnotation(Service.class).value();
+                        if (StringUtil.isEmpty(beanName)) {
                             beanName = clz.getSimpleName().substring(0, 1).toLowerCase() + clz.getSimpleName().substring(1);
                         }
-                        singletonObjects.put(beanName, clz.getDeclaredConstructor().newInstance());
                     }
+
+                    singletonObjects.put(beanName, clz.getDeclaredConstructor().newInstance());
                 }
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
                 e.printStackTrace();
