@@ -111,8 +111,7 @@ public class ApplicationContext {
                         String value = clz.getAnnotation(Service.class).value();
                         String beanName = value;
                         if (StringUtil.isEmpty(value)) {
-                            // 接口名
-                            beanName = clz.getInterfaces()[0].getSimpleName().substring(0, 1).toLowerCase() + clz.getInterfaces()[0].getSimpleName().substring(1);
+                            beanName = clz.getSimpleName().substring(0, 1).toLowerCase() + clz.getSimpleName().substring(1);
                         }
                         singletonObjects.put(beanName, clz.getDeclaredConstructor().newInstance());
                     }
@@ -134,21 +133,31 @@ public class ApplicationContext {
             Field[] fields = bean.getClass().getDeclaredFields();
             for (Field field : fields) {
                 if (field.isAnnotationPresent(Autowired.class)) {
+                    field.setAccessible(Boolean.TRUE);
                     String value = field.getAnnotation(Autowired.class).value();
                     String beanName = value;
                     if (StringUtil.isEmpty(value)) {
-                        if (field.getType().isInterface()) {
-                            beanName = field.getName().substring(0, 1).toLowerCase() + field.getName().substring(1);
-                        } else {
-                            // 如果是实现类则取接口名
-                            beanName = field.getType().getInterfaces()[0].getSimpleName().substring(0, 1).toLowerCase() + field.getType().getInterfaces()[0].getSimpleName().substring(1);
-                        }
+                        beanName = field.getName().substring(0, 1).toLowerCase() + field.getName().substring(1);
                     }
-                    field.setAccessible(Boolean.TRUE);
-                    try {
-                        field.set(bean, singletonObjects.get(beanName));
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
+                    Object instance = singletonObjects.get(beanName);
+                    if (instance != null) {
+                        try {
+                            field.set(bean, singletonObjects.get(beanName));
+                        } catch (IllegalAccessException e) {
+                            throw new RuntimeException(e);
+                        }
+                    } else {
+                        for (Map.Entry<String, Object> instanceEntry : singletonObjects.entrySet()) {
+                            Object obj = instanceEntry.getValue();
+                            if (field.getType().isInstance(obj)) {
+                                try {
+                                    field.set(bean, obj);
+                                    break;
+                                } catch (IllegalAccessException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                        }
                     }
                 }
             }
