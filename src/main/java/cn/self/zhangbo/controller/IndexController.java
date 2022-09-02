@@ -1,10 +1,6 @@
 package cn.self.zhangbo.controller;
 
-import cn.self.zhangbo.kernel.annotation.Autowired;
-import cn.self.zhangbo.kernel.annotation.Controller;
-import cn.self.zhangbo.kernel.annotation.RequestMapping;
-import cn.self.zhangbo.kernel.annotation.RequestParam;
-import cn.self.zhangbo.kernel.annotation.ResponseBody;
+import cn.self.zhangbo.kernel.annotation.*;
 import cn.self.zhangbo.pojo.User;
 import cn.self.zhangbo.service.IndexService;
 import cn.self.zhangbo.service.impl.IndexService2Impl;
