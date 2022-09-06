@@ -23,7 +23,7 @@ public class AnnotationUtil {
     public static boolean isCandidateClass(Class<?> clazz, Class<? extends Annotation> annotationType) {
         for (Annotation annotation : clazz.getAnnotations()) {
             boolean condition = StringUtil.equals(annotation.annotationType().getName(), annotationType.getName());
-            if (condition) return condition;
+            if (condition) return Boolean.TRUE;
         }
         return Boolean.FALSE;
     }

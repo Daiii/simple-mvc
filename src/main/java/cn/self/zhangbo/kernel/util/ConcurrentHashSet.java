@@ -3,7 +3,6 @@ package cn.self.zhangbo.kernel.util;
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -15,7 +14,7 @@ public class ConcurrentHashSet<E> extends AbstractSet<E> {
 
     private static final Boolean PRESENT = Boolean.TRUE;
 
-    private Map<E, Boolean> map;
+    private final ConcurrentHashMap<E, Boolean> map;
 
     public ConcurrentHashSet() {
         map = new ConcurrentHashMap<>();
