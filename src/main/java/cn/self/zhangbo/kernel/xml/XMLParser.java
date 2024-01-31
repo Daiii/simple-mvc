@@ -29,8 +29,7 @@ public class XMLParser {
             Attribute attribute = component.attribute("base-package");
             return attribute.getText();
         } catch (DocumentException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return null;
     }
 }
